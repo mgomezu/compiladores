@@ -133,10 +133,6 @@
     %type <program> program
     %type <classes> class_list
     %type <class_> class
-    
-    /* You will want to change the following line. */
-    %type <feature> feature
-    %type <features> feature_list
     %type <formal> formal
     %type <formals> formal_list   
     %type <case_> branch
@@ -145,6 +141,10 @@
     %type <expression> let
     %type <expressions> expr_list
     %type <expressions> expr_list_
+    
+    /* You will want to change the following line. */
+    %type <features> dummy_feature_list 
+    %type <feature> feature
     
     /* Precedence declarations go here. */
     
@@ -175,23 +175,20 @@
     
     /* If no parent is specified, the class inherits from the Object class. */
     //* class; */
-    class
-      : CLASS TYPEID '{' feature_list '}' ';'
-        { $$ = class_($2,idtable.add_string("Object"),$4,
-          stringtable.add_string(curr_filename)); }
-      | CLASS TYPEID INHERITS TYPEID '{' feature_list '}' ';'
-        { $$ = class_($2,$4,$6,stringtable.add_string(curr_filename)); }
-      | CLASS error ';' class 
+    class	: CLASS TYPEID '{' dummy_feature_list '}' ';'
+    { $$ = class_($2,idtable.add_string("Object"),$4,
+    stringtable.add_string(curr_filename)); }
+    | CLASS TYPEID INHERITS TYPEID '{' dummy_feature_list '}' ';'
+    { $$ = class_($2,$4,$6,stringtable.add_string(curr_filename)); }
+    | CLASS error ';' class 
         { $$ = $4; }
     
     /* Feature list may be empty, but no empty features in list. */
-    /* [[feature;]]* */
-    feature_list
-      :		/* empty */
-        { $$ = nil_Features(); }
-      | feature_list feature
+    dummy_feature_list:		/* empty */
+    {  $$ = nil_Features(); }
+      | dummy_feature_list  feature
         { $$ = append_Features($1, single_Features($2)); };
-      | feature_list error ';'
+      | dummy_feature_list  error ';'
         { $$ = $1; }
 
     /* feature; */
