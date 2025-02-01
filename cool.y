@@ -191,7 +191,6 @@
       | dummy_feature_list  error ';'
         { $$ = $1; }
 
-    /* feature; */
     feature
       : OBJECTID '(' ')' ':' TYPEID '{' expr '}' ';'
         { $$ = method($1, nil_Formals(), $5, $7); }
@@ -202,26 +201,22 @@
       | OBJECTID ':' TYPEID ASSIGN expr ';'
         { $$ = attr($1, $3, $5); } 
 
-    /* formal */
     formal
       : OBJECTID ':' TYPEID
         { $$ = formal($1, $3); };
     
-    /* [formal [[, formal]]* */
     formal_list
       : formal
         { $$ = single_Formals($1); }
       | formal_list ',' formal
         { $$ = append_Formals($1, single_Formals($3)); };
 
-    /* expr [[, expr]]* */
     expr_list
       : expr
         { $$ = single_Expressions($1); }
       | expr_list ',' expr
         { $$ = append_Expressions($1, single_Expressions($3)); };
 
-    /* [[expr;]]+ */
     expr_list_
       : expr ';'
         { $$ = single_Expressions($1); }
@@ -230,7 +225,6 @@
       | expr_list_ error ';' 
         { $$ = $1; }      
 
-    /* ID : TYPE [ <- expr ] [[, ID : TYPE [ <- expr ]]]* in expr */
     let
       : OBJECTID ':' TYPEID IN expr
         { $$ = let($1, $3, no_expr(), $5); }
@@ -243,19 +237,16 @@
       | error ',' let
         { $$ = $3; }
 
-    /* ID : TYPE => expr; */
     branch
       : OBJECTID ':' TYPEID DARROW expr ';'
         { $$ = branch($1, $3, $5); };
 
-    /* [[ID : TYPE => expr;]]+ */
     branch_list
       : branch
         { $$ = single_Cases($1); }
       | branch_list branch 
         { $$ = append_Cases($1, single_Cases($2)); };
 
-    /* nonempty expr  */
     expr
       // assign
       : OBJECTID ASSIGN expr
